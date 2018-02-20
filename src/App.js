@@ -177,7 +177,7 @@ class App extends Component {
         }} />
           <Route exact path="/" render={() => (
             <Page>
-              <Page.Main>
+              <Page.Main style={{ height: '100vh', 'overflowY': 'scroll' }}>
                 <Page.ToolHeader>
           			  <Header type="h1">
           			    Choose your Pokemon
@@ -189,11 +189,11 @@ class App extends Component {
                       <Flex direction="column" alignItems="flex-start">
                         <Box paddingBottom="sm">
                           <Header type="h3">
-                            Sort By
+                            Sort By Stat
       			              </Header>
       			            </Box>
                         <Select
-                          style={{ width: '200px'}}
+                          style={{ width: '300px'}}
                           multi
                           closeOnSelect={false}
                           onChange={this.handleSortChange}
@@ -207,11 +207,11 @@ class App extends Component {
                       <Flex direction="column" alignItems="flex-start">
                         <Box paddingBottom="sm">
                           <Header type="h3">
-                            Filter By
+                            Filter By Type
       			              </Header>
                         </Box>
                         <Select
-                          style={{ width: '200px'}}
+                          style={{ width: '300px'}}
                           multi
                           closeOnSelect={false}
                           onBlur={this.handleFilterBlur}
@@ -224,7 +224,7 @@ class App extends Component {
                   </Flex>
       			    </Page.Filters>
       			    <Page.Body>
-        			    <div style={{ width: '100%' }}>
+        			    <div style={{ width: '100%', 'overflowY': 'scroll' }}>
         			    <Flex style={{ 'flexWrap': 'wrap', margin: '-12px' }}>
 			              { data.filter(pokemon => !team.includes(pokemon.id))
 			                .map(pokemon => {
@@ -259,7 +259,8 @@ class App extends Component {
             	    </div>
       			    </Page.Body>
         	    </Page.Main>
-              <Page.Sidebar>
+              <Page.Sidebar style={{ position: 'relative', height: '100vh' }}>
+            	  <div style={{ height: '100%', 'overflowY': 'scroll'}}>
             	  <Flex>
                   <Box padding="md">
           			    <Link to="/team">Your Team: </Link>
@@ -273,6 +274,7 @@ class App extends Component {
             	      const currentPoke = originalData.find(poke => poke.id === pokeId);
             	      return (
             	        <PokeCard
+            	          key={currentPoke.name}
             	          name={currentPoke.name}
             	          id={currentPoke.id}
             	          sprite={currentPoke.sprites.front_shiny}
@@ -285,6 +287,7 @@ class App extends Component {
             	      )
             	    })}
             	  </Flex>
+            	</div>
               </Page.Sidebar>
             </Page>
           )} />
