@@ -7,9 +7,10 @@ import Remove from 'react-icons/lib/md/remove-circle';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 
-const Show = ({ match }) => (
+const Show = ({ pokemon }) => (
   <div>
-    <h2>Pokemon: {match.params.pokemon}</h2>
+    <h2>{pokemon.name}</h2>
+    <img src={pokemon.sprites.front_default} />
   </div>
 );
 
@@ -29,7 +30,7 @@ const Team = ({ pokemon, removeIcon }) => {
 };
 
 const PokeCard = ({ renderIcon, name, id, sprite }) => (
-	<Box key={name} padding="md">
+	<Box margin="md">
 		<Card variant="hoverable" style={{width: '200px'}}>
 			<Box padding="md">
   			<Flex direction="column">
@@ -170,95 +171,121 @@ class App extends Component {
 						  <Team pokemon={myPokemon} removeIcon={handleRemoveIcon} />
 						)
 					}} />
-          <Route path="/:pokemon" component={Show} />
+        <Route path="/:pokemon" render={({ match }) => {
+          const currentPokemon = originalData.find(el => el.name === match.params.pokemon);
+          return <Show pokemon={currentPokemon} />
+        }} />
           <Route exact path="/" render={() => (
             <Page>
-              <Page.Sidebar>
-                <Box padding="lg sm">
-                  <Box>
-                    <Box padding="sm none">
-                      <Header type="h3">
-                        Sort By
-      			          </Header>
-      			        </Box>
-                    <Select
-                      multi
-                      closeOnSelect={false}
-                      onChange={this.handleSortChange}
-                      onBlur={this.handleSortBlur}
-                      value={sortValues}
-                      options={SORT_OPTIONS}
-                    />
-                  </Box>
-                  <Box>
-                    <Box padding="sm none">
-                      <Header type="h3">
-                        Filter By
-      			          </Header>
-                    </Box>
-                    <Select
-                      multi
-                      closeOnSelect={false}
-                      onBlur={this.handleFilterBlur}
-                      onChange={this.handleFilterChange}
-                      value={filterValues}
-                      options={FILTER_OPTIONS}
-                    />
-                  </Box>
-        		    </Box>
-              </Page.Sidebar>
               <Page.Main>
                 <Page.ToolHeader>
-                  <Flex style={{ justifyContent: 'space-between' }}>
-                    <Box padding="md">
-          			      Choose your Pokemon
-        			      </Box>
-                    <Box padding="md">
-          			      <div>{team.length}/6</div>
-        			      </Box>
-                    <Box padding="md">
-          			      <Link to="/team">Your Team</Link>
-        			      </Box>
-                  </Flex>
+          			  <Header type="h1">
+          			    Choose your Pokemon
+          			  </Header>
       			    </Page.ToolHeader>
+      			    <Page.Filters >
+                  <Flex>
+                    <Box paddingRight="sm">
+                      <Flex direction="column" alignItems="flex-start">
+                        <Box paddingBottom="sm">
+                          <Header type="h3">
+                            Sort By
+      			              </Header>
+      			            </Box>
+                        <Select
+                          style={{ width: '200px'}}
+                          multi
+                          closeOnSelect={false}
+                          onChange={this.handleSortChange}
+                          onBlur={this.handleSortBlur}
+                          value={sortValues}
+                          options={SORT_OPTIONS}
+                        />
+                      </Flex>
+      			        </Box>
+                    <Box paddingRight="sm">
+                      <Flex direction="column" alignItems="flex-start">
+                        <Box paddingBottom="sm">
+                          <Header type="h3">
+                            Filter By
+      			              </Header>
+                        </Box>
+                        <Select
+                          style={{ width: '200px'}}
+                          multi
+                          closeOnSelect={false}
+                          onBlur={this.handleFilterBlur}
+                          onChange={this.handleFilterChange}
+                          value={filterValues}
+                          options={FILTER_OPTIONS}
+                        />
+                      </Flex>
+                    </Box>
+                  </Flex>
+      			    </Page.Filters>
       			    <Page.Body>
-        			    <Flex padding="md" style={{ 'flexWrap': 'wrap'}}>
-			              { data.map(pokemon => {
-			                const isAlreadyOnTeam = team.includes(pokemon.id);
-			                const canAdd = !isAlreadyOnTeam && team.length < 6;
-			                const handleAdd = () => {
-  			                if(canAdd) {
-  			                  this.setState({
-  			                    team: [...team, pokemon.id],
-  			                  });
-  			                }
-  			              };
+        			    <div style={{ width: '100%' }}>
+        			    <Flex style={{ 'flexWrap': 'wrap', margin: '-12px' }}>
+			              { data.filter(pokemon => !team.includes(pokemon.id))
+			                .map(pokemon => {
+			                  const isAlreadyOnTeam = team.includes(pokemon.id);
+			                  const canAdd = !isAlreadyOnTeam && team.length < 6;
+			                  const handleAdd = () => {
+  			                  if(canAdd) {
+  			                    this.setState({
+  			                      team: [...team, pokemon.id],
+  			                    });
+  			                  }
+  			                };
 
-  			              const getIcon = (id) => {
-  			                return isAlreadyOnTeam ? (
-  			                  <Remove onClick={() => {
-  			                    this.handleRemoveFromTeam(id);
-  			                  }} />
-  			                ) : (
+  			                const getIcon = (id) => (
   			                  <Add onClick={() => {
   			                    handleAdd(id);
   			                  }} />
-  			                );
-  			              }
-			                return (
-			                  <PokeCard
-			                    renderIcon={(pokeId) => {
-			                      return getIcon(pokeId);
-			                    }}
-			                    name={pokemon.name}
-			                    id={pokemon.id}
-			                    sprite={pokemon.sprites.front_default}
-			                  />
-			                )
-			              })}
-            	    </Flex>
+  			                )
+			                  return (
+			                    <PokeCard
+			                      key={pokemon.name}
+			                      renderIcon={(pokeId) => {
+			                        return getIcon(pokeId);
+			                      }}
+			                      name={pokemon.name}
+			                      id={pokemon.id}
+			                      sprite={pokemon.sprites.front_default}
+			                    />
+			                  )
+			                })}
+            	      </Flex>
+            	    </div>
       			    </Page.Body>
         	    </Page.Main>
+              <Page.Sidebar>
+            	  <Flex>
+                  <Box padding="md">
+          			    <Link to="/team">Your Team: </Link>
+        			    </Box>
+                  <Box padding="md">
+          			    <div>{team.length}/6</div>
+        			    </Box>
+            	  </Flex>
+            	  <Flex direction="column">
+            	    { team.map(pokeId => {
+            	      const currentPoke = originalData.find(poke => poke.id === pokeId);
+            	      return (
+            	        <PokeCard
+            	          name={currentPoke.name}
+            	          id={currentPoke.id}
+            	          sprite={currentPoke.sprites.front_shiny}
+			                  renderIcon={(pokeId) => (
+  			                  <Remove onClick={() => {
+  			                    this.handleRemoveFromTeam(pokeId);
+  			                  }} />
+  			                )}
+            	        />
+            	      )
+            	    })}
+            	  </Flex>
+              </Page.Sidebar>
             </Page>
           )} />
         </Switch>
