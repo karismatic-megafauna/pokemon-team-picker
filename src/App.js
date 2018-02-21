@@ -7,6 +7,7 @@ import Remove from 'react-icons/lib/md/remove-circle';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 
+const STATS = { speed: 0, attack: 0, defense: 0, 'special-attack': 0, 'special-defense': 0, hp: 0 };
 const Show = ({ pokemon }) => (
   <div>
     <h2>{pokemon.name}</h2>
@@ -15,19 +16,61 @@ const Show = ({ pokemon }) => (
 );
 
 const Team = ({ pokemon, removeIcon }) => {
+
+  const statTotals = pokemon.reduce((a, b) => {
+    const nestedStats = b.stats.reduce((x, y) => {
+      return {
+        ...x,
+        [y.stat.name]: y.base_stat,
+      };
+    }, {});
+
+    const mergedObj = {
+      speed: a.speed + nestedStats.speed,
+      defense: a.defense + nestedStats.defense,
+      attack: a.attack + nestedStats.attack,
+      hp: a.hp + nestedStats.hp,
+      'special-attack': a['special-attack'] + nestedStats['special-attack'],
+      'special-defense': a['special-defense'] + nestedStats['special-defense'],
+    };
+
+    return mergedObj;
+  }, STATS);
+
+  debugger;
   return (
-    <Flex style={{ flexWrap: 'wrap' }}>
-      {pokemon.map(poke => (
-        <PokeCard
-          stats={poke.stats}
-          key={poke.name}
-          name={poke.name}
-          id={poke.id}
-          sprite={poke.sprites.front_default}
-			    renderIcon={removeIcon}
-        />
-      ))}
-    </Flex>
+    <Page>
+      <Page.Main style={{ height: '100vh', 'overflowY': 'scroll' }}>
+        <Page.ToolHeader>
+          <Header type="h1">
+            Your Team
+          </Header>
+        </Page.ToolHeader>
+        <Page.Body style={{ justifyContent: 'flex-start' }}>
+          <Flex style={{ flexWrap: 'wrap' }}>
+            {pokemon.map(poke => (
+              <PokeCard
+                stats={poke.stats}
+                key={poke.name}
+                name={poke.name}
+                id={poke.id}
+                sprite={poke.sprites.front_default}
+			          renderIcon={removeIcon}
+              />
+            ))}
+          </Flex>
+          <Flex>
+            <Header type="h1">
+              Stat Totals
+            </Header>
+            <Flex>
+              {statTotals.speed}
+              {statTotals.defense}
+            </Flex>
+          </Flex>
+        </Page.Body>
+      </Page.Main>
+    </Page>
   )
 };
 
@@ -292,7 +335,7 @@ class App extends Component {
             	    <div style={{ height: '100%', 'overflowY': 'scroll'}}>
             	      <Flex style={{ justifyContent: 'space-between' }}>
           			      <Box padding="md md sm md" style={{ width: '100%'}}>
-          			        <Link to="/team">
+          			        <Link to="/team" >
           			          <Button style={{ width: '100%'}}>
           			            View Team
           			          </Button>
