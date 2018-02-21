@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Page, Box, Card, Flex, Header } from '@procore/core-react'
+import { Page, Box, Card, Flex, Header, Button } from '@procore/core-react'
 import metadata from 'pokemon-metadata';
 import { Link, Route, Switch } from 'react-router-dom';
 import Add from 'react-icons/lib/md/add-circle-outline';
@@ -10,26 +10,28 @@ import 'react-select/dist/react-select.css';
 const Show = ({ pokemon }) => (
   <div>
     <h2>{pokemon.name}</h2>
-    <img src={pokemon.sprites.front_default} />
+    <img alt={pokemon.name} src={pokemon.sprites.front_default} />
   </div>
 );
 
 const Team = ({ pokemon, removeIcon }) => {
   return (
-    <div>
+    <Flex style={{ flexWrap: 'wrap' }}>
       {pokemon.map(poke => (
         <PokeCard
+          stats={poke.stats}
+          key={poke.name}
           name={poke.name}
           id={poke.id}
           sprite={poke.sprites.front_default}
 			    renderIcon={removeIcon}
         />
       ))}
-    </div>
+    </Flex>
   )
 };
 
-const PokeCard = ({ renderIcon, name, id, sprite }) => (
+const PokeCard = ({ stats, renderIcon, name, id, sprite }) => (
 	<Box margin="md">
 		<Card variant="hoverable" style={{width: '200px'}}>
 			<Box padding="md">
@@ -41,6 +43,23 @@ const PokeCard = ({ renderIcon, name, id, sprite }) => (
   			    {renderIcon(id)}
   			  </Flex>
   			  <img alt={name} src={sprite} />
+  			  <Flex style={{ width: '100%', flexWrap: 'wrap' }}>
+  			    {stats.map(s => {
+  			      return (
+  			        <Flex
+  			          key={s.stat.name}
+  			          style={{ width: '100%', justifyContent: 'space-between'}}
+  			        >
+  			          <Box>
+  			            {s.stat.name}
+  			          </Box>
+  			          <Box>
+  			            {s.base_stat}
+  			          </Box>
+  			        </Flex>
+  			      )
+  			    })}
+  			  </Flex>
   			</Flex>
 			</Box>
 		</Card>
@@ -158,6 +177,7 @@ class App extends Component {
 
   render() {
     const { data, filterValues, sortValues, team, originalData } = this.state;
+		const teamFull = team.length === 6;
     return (
       <div style={{ height: '100vh' }}>
         <Switch>
@@ -180,7 +200,12 @@ class App extends Component {
               <Page.Main style={{ height: '100vh', 'overflowY': 'scroll' }}>
                 <Page.ToolHeader>
           			  <Header type="h1">
-          			    Choose your Pokemon
+          			    <Flex style={{ justifyContent: 'space-between' }}>
+          			      <div> Choose your Pokemon </div>
+          			      <div style={{ color: teamFull ? 'green' : 'black' }}>
+          			        {team.length}/6
+          			      </div>
+          			    </Flex>
           			  </Header>
       			    </Page.ToolHeader>
       			    <Page.Filters >
@@ -225,69 +250,75 @@ class App extends Component {
       			    </Page.Filters>
       			    <Page.Body>
         			    <div style={{ width: '100%', 'overflowY': 'scroll' }}>
-        			    <Flex style={{ 'flexWrap': 'wrap', margin: '-12px' }}>
-			              { data.filter(pokemon => !team.includes(pokemon.id))
-			                .map(pokemon => {
-			                  const isAlreadyOnTeam = team.includes(pokemon.id);
-			                  const canAdd = !isAlreadyOnTeam && team.length < 6;
-			                  const handleAdd = () => {
-  			                  if(canAdd) {
-  			                    this.setState({
-  			                      team: [...team, pokemon.id],
-  			                    });
-  			                  }
-  			                };
+        			      <Flex style={{ 'flexWrap': 'wrap' }}>
+			                { data.filter(pokemon => !team.includes(pokemon.id))
+			                  .map(pokemon => {
+			                    const isAlreadyOnTeam = team.includes(pokemon.id);
+			                    const canAdd = !isAlreadyOnTeam && team.length < 6;
+			                    const handleAdd = () => {
+  			                    if(canAdd) {
+  			                      this.setState({
+  			                        team: [...team, pokemon.id],
+  			                      });
+  			                    }
+  			                  };
 
-  			                const getIcon = (id) => (
-  			                  <Add onClick={() => {
-  			                    handleAdd(id);
-  			                  }} />
-  			                )
-			                  return (
-			                    <PokeCard
-			                      key={pokemon.name}
-			                      renderIcon={(pokeId) => {
-			                        return getIcon(pokeId);
-			                      }}
-			                      name={pokemon.name}
-			                      id={pokemon.id}
-			                      sprite={pokemon.sprites.front_default}
-			                    />
-			                  )
-			                })}
+  			                  const getIcon = (id) => (
+  			                    <Add
+  			                      style={{ fillOpacity: teamFull ? '.2' : '1' }}
+  			                      onClick={() => {
+  			                        handleAdd(id);
+  			                      }}
+                            />
+  			                  )
+			                    return (
+			                      <PokeCard
+			                        stats={pokemon.stats}
+			                        key={pokemon.name}
+			                        renderIcon={(pokeId) => {
+			                          return getIcon(pokeId);
+			                        }}
+			                        name={pokemon.name}
+			                        id={pokemon.id}
+			                        sprite={pokemon.sprites.front_default}
+			                      />
+			                    )
+			                  })}
+            	        </Flex>
+            	      </div>
+      			      </Page.Body>
+        	      </Page.Main>
+                <Page.Sidebar style={{ position: 'relative', height: '100vh' }}>
+            	    <div style={{ height: '100%', 'overflowY': 'scroll'}}>
+            	      <Flex style={{ justifyContent: 'space-between' }}>
+          			      <Box padding="md md sm md" style={{ width: '100%'}}>
+          			        <Link to="/team">
+          			          <Button style={{ width: '100%'}}>
+          			            View Team
+          			          </Button>
+          			        </Link>
+          			      </Box>
+            	      </Flex>
+            	      <Flex direction="column">
+            	        { team.map(pokeId => {
+            	          const currentPoke = originalData.find(poke => poke.id === pokeId);
+            	          return (
+            	            <PokeCard
+            	              stats={currentPoke.stats}
+            	              key={currentPoke.name}
+            	              name={currentPoke.name}
+            	              id={currentPoke.id}
+            	              sprite={currentPoke.sprites.front_shiny}
+			                      renderIcon={(pokeId) => (
+  			                      <Remove onClick={() => {
+  			                        this.handleRemoveFromTeam(pokeId);
+  			                      }} />
+  			                    )}
+            	            />
+            	          )
+            	        })}
             	      </Flex>
             	    </div>
-      			    </Page.Body>
-        	    </Page.Main>
-              <Page.Sidebar style={{ position: 'relative', height: '100vh' }}>
-            	  <div style={{ height: '100%', 'overflowY': 'scroll'}}>
-            	  <Flex>
-                  <Box padding="md">
-          			    <Link to="/team">Your Team: </Link>
-        			    </Box>
-                  <Box padding="md">
-          			    <div>{team.length}/6</div>
-        			    </Box>
-            	  </Flex>
-            	  <Flex direction="column">
-            	    { team.map(pokeId => {
-            	      const currentPoke = originalData.find(poke => poke.id === pokeId);
-            	      return (
-            	        <PokeCard
-            	          key={currentPoke.name}
-            	          name={currentPoke.name}
-            	          id={currentPoke.id}
-            	          sprite={currentPoke.sprites.front_shiny}
-			                  renderIcon={(pokeId) => (
-  			                  <Remove onClick={() => {
-  			                    this.handleRemoveFromTeam(pokeId);
-  			                  }} />
-  			                )}
-            	        />
-            	      )
-            	    })}
-            	  </Flex>
-            	</div>
               </Page.Sidebar>
             </Page>
           )} />
