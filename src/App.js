@@ -1,140 +1,20 @@
 import React, { Component } from 'react';
-import { Page, Box, Card, Flex, Header, Button } from '@procore/core-react'
+import { Page, Box, Flex, Header, Button } from '@procore/core-react'
 import metadata from 'pokemon-metadata';
 import { Link, Route, Switch } from 'react-router-dom';
 import Add from 'react-icons/lib/md/add-circle-outline';
 import Remove from 'react-icons/lib/md/remove-circle';
 import Select from 'react-select';
+import Show from './Show';
+import Team from './Team';
+import PokeCard from './PokeCard';
+import { SORT_OPTIONS, FILTER_OPTIONS } from './constants';
+
 import 'react-select/dist/react-select.css';
 
-const STATS = { speed: 0, attack: 0, defense: 0, 'special-attack': 0, 'special-defense': 0, hp: 0 };
-const Show = ({ pokemon }) => (
-  <div>
-    <h2>{pokemon.name}</h2>
-    <img alt={pokemon.name} src={pokemon.sprites.front_default} />
-  </div>
-);
 
-const Team = ({ pokemon, removeIcon }) => {
 
-  const statTotals = pokemon.reduce((a, b) => {
-    const nestedStats = b.stats.reduce((x, y) => {
-      return {
-        ...x,
-        [y.stat.name]: y.base_stat,
-      };
-    }, {});
 
-    const mergedObj = {
-      speed: a.speed + nestedStats.speed,
-      defense: a.defense + nestedStats.defense,
-      attack: a.attack + nestedStats.attack,
-      hp: a.hp + nestedStats.hp,
-      'special-attack': a['special-attack'] + nestedStats['special-attack'],
-      'special-defense': a['special-defense'] + nestedStats['special-defense'],
-    };
-
-    return mergedObj;
-  }, STATS);
-
-  debugger;
-  return (
-    <Page>
-      <Page.Main style={{ height: '100vh', 'overflowY': 'scroll' }}>
-        <Page.ToolHeader>
-          <Header type="h1">
-            Your Team
-          </Header>
-        </Page.ToolHeader>
-        <Page.Body style={{ justifyContent: 'flex-start' }}>
-          <Flex style={{ flexWrap: 'wrap' }}>
-            {pokemon.map(poke => (
-              <PokeCard
-                stats={poke.stats}
-                key={poke.name}
-                name={poke.name}
-                id={poke.id}
-                sprite={poke.sprites.front_default}
-			          renderIcon={removeIcon}
-              />
-            ))}
-          </Flex>
-          <Flex>
-            <Header type="h1">
-              Stat Totals
-            </Header>
-            <Flex>
-              {statTotals.speed}
-              {statTotals.defense}
-            </Flex>
-          </Flex>
-        </Page.Body>
-      </Page.Main>
-    </Page>
-  )
-};
-
-const PokeCard = ({ stats, renderIcon, name, id, sprite }) => (
-	<Box margin="md">
-		<Card variant="hoverable" style={{width: '200px'}}>
-			<Box padding="md">
-  			<Flex direction="column">
-          <Flex style={{ width: '100%', justifyContent: 'space-between' }}>
-  			    <Link to={`/${name}`}>
-  			      {name}: {id}
-  			    </Link>
-  			    {renderIcon(id)}
-  			  </Flex>
-  			  <img alt={name} src={sprite} />
-  			  <Flex style={{ width: '100%', flexWrap: 'wrap' }}>
-  			    {stats.map(s => {
-  			      return (
-  			        <Flex
-  			          key={s.stat.name}
-  			          style={{ width: '100%', justifyContent: 'space-between'}}
-  			        >
-  			          <Box>
-  			            {s.stat.name}
-  			          </Box>
-  			          <Box>
-  			            {s.base_stat}
-  			          </Box>
-  			        </Flex>
-  			      )
-  			    })}
-  			  </Flex>
-  			</Flex>
-			</Box>
-		</Card>
-	</Box>
-)
-
-const SORT_OPTIONS = [
-  { value: 'speed', label: 'Speed'},
-  { value: 'attack', label: 'Attack'},
-  { value: 'defense', label: 'Defense'},
-  { value: 'hp', label: 'Hp'},
-  { value: 'special-defense', label: 'Special Defense'},
-  { value: 'special-attack', label: 'Special Attack'},
-];
-
-const FILTER_OPTIONS = [
-  { value: 'bug', label: 'Bug'},
-  { value: 'dragon', label: 'Dragon'},
-  { value: 'ice', label: 'Ice'},
-  { value: 'fighting', label: 'Fighting'},
-  { value: 'fire', label: 'Fire'},
-  { value: 'flying', label: 'Flying'},
-  { value: 'grass', label: 'Grass'},
-  { value: 'ghost', label: 'Ghost'},
-  { value: 'ground', label: 'Ground'},
-  { value: 'electric', label: 'Electric'},
-  { value: 'normal', label: 'Normal'},
-  { value: 'poison', label: 'Poison'},
-  { value: 'psychic', label: 'Psychic'},
-  { value: 'rock', label: 'Rock'},
-  { value: 'water', label: 'Water'},
-];
 
 class App extends Component {
   constructor(props){
@@ -314,8 +194,10 @@ class App extends Component {
   			                      }}
                             />
   			                  )
+
 			                    return (
 			                      <PokeCard
+			                        full={teamFull}
 			                        stats={pokemon.stats}
 			                        key={pokemon.name}
 			                        renderIcon={(pokeId) => {
