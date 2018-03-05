@@ -14,10 +14,10 @@ const Team = ({ pokemon, removeIcon }) => {
 
     const mergedObj = {
       speed: a.speed + nestedStats.speed,
-      attack: a.attack + nestedStats.attack,
       'special-attack': a['special-attack'] + nestedStats['special-attack'],
-      defense: a.defense + nestedStats.defense,
       'special-defense': a['special-defense'] + nestedStats['special-defense'],
+      defense: a.defense + nestedStats.defense,
+      attack: a.attack + nestedStats.attack,
       hp: a.hp + nestedStats.hp,
     };
 
@@ -51,7 +51,7 @@ const Team = ({ pokemon, removeIcon }) => {
             </Header>
             <Flex alignItems="flex-start">
               { Object.keys(statTotals).map(st => (
-                <Box padding="lg">
+                <Box padding="lg" key={st}>
                   <Flex direction="column" alignItems="flex-start">
                     <Box margin="sm none" style={{borderBottom: "1px solid black"}}>
                       <Header type="h2">{st}</Header>

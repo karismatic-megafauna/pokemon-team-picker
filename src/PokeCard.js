@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Card, Flex, Link as PLink } from '@procore/core-react'
+import { Box, Card, Flex } from '@procore/core-react'
 import { Link } from 'react-router-dom';
 import './App.css';
 
@@ -10,9 +10,7 @@ const PokeCard = ({ stats, renderIcon, name, id, sprite, full = false }) => (
   			<Flex direction="column">
           <Flex style={{ width: '100%', justifyContent: 'space-between' }}>
   			    <Link to={`/${name}`} style={{ textDecoration: 'none' }}>
-  			      <PLink variant="gray">
-  			        #{id} <span className="capitalize">{name}</span>
-  			      </PLink>
+  			      #{id} <span className="capitalize">{name}</span>
   			    </Link>
   			    <div className={full ? 'blocked' : 'hover'}>
   			      {renderIcon(id)}

@@ -12,10 +12,6 @@ import { SORT_OPTIONS, FILTER_OPTIONS } from './constants';
 
 import 'react-select/dist/react-select.css';
 
-
-
-
-
 class App extends Component {
   constructor(props){
     super(props);
